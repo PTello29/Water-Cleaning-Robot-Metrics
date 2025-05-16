@@ -42,9 +42,7 @@ To minimize energy usage and improve accuracy, the robot implements a proportion
 
 Rather than speed or timing, this simulation uses **energy consumption** as its primary performance metric. This is computed using the formula:
 
-\[
-\text{Energy} = \int (F \cdot v) \, dt
-\]
+$\sqrt{3x-1}+(1+x)^2$
 
 Assuming constant force and approximating based on duration and velocity, energy consumption can be expressed as proportional to:
 
