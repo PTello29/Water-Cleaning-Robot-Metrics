@@ -2,11 +2,13 @@
 
 ## Introduction
 
-This document outlines the simulation of an autonomous floating robot built to detect and remove debris from water surfaces. The virtual environment is developed using the `turtlesim` package within the Robot Operating System (ROS) and mimics the expected behavior of a future physical prototype.
+Safeguarding aquatic ecosystems has become a critical focus area in modern robotics and environmental engineering. As pollution levels rise in lakes, rivers, and coastal zones, autonomous solutions are increasingly sought after to mitigate human impact. This project introduces a simulated autonomous robot designed to identify and remove floating waste in a controlled virtual environment using the turtlesim package and ROS (Robot Operating System).
 
-The robot operates in a 2D space and identifies virtual waste based on color. Upon detection, it navigates toward the object and simulates a cleaning task by marking the area. This logic imitates a real-world implementation where a camera module and color filtering enable object recognition, and an embedded system controls the movement.
+The robot operates in a 2D space, detecting a colored object that symbolizes surface-level debris. Upon detection, it navigates toward the target and simulates a cleaning action. Though simple in implementation, the behavior mirrors the fundamental logic behind real-world robots that use computer vision (e.g., OpenCV) and microcontroller integration to execute similar tasks.
 
-This project also aligns with the United Nations Sustainable Development Goals for the 2030 Agenda. For example, goal 6: Clean Water and Sanitation** – Encouraging proactive waste removal from aquatic environments and goal 14: Life Below Water** – Supporting pollution reduction efforts in marine ecosystems.
+This simulation is not only a technical experiment but also a conceptual contribution to sustainable development. By replicating environmental cleanup operations through automation, it aligns with key objectives in the United Nations 2030 Agenda, particularly the goal 6 of Clean Water and Sanitation that is supporting initiatives that reduce contamination in water bodies and the goal 14 ofLife Below Water  that is enhancing the conservation of aquatic biodiversity through pollution control.
+
+Projects like this highlight the potential of robotics to assist in real-world ecological challenges while fostering awareness of technology’s role in environmental stewardship.
 
 ## System Overview
 
@@ -145,6 +147,120 @@ if __name__ == "__main__":
     except rospy.ROSInterruptException:
         pass
 ```
+This Python script implements a simulated robot using ROS (Robot Operating System) and `turtlesim`, which moves towards a random object (represented as "trash") and calculates the estimated energy consumption based on its movement.
+
+```python
+import rospy, time, random
+from math import atan2, sqrt, pow, pi
+from turtlesim.srv import Spawn, Kill, TeleportAbsolute, SetPen
+from turtlesim.msg import Pose
+from geometry_msgs.msg import Twist
+```
+
+These libraries allow:
+
+- ROS management (rospy)
+- Random generation (random)
+- Mathematical calculations (distance, angle, energy)
+- Turtlesim-specific services and messages and geometry_msgs
+
+Initialization
+```pyhton
+def __init__(self):
+    rospy.init_node("energy_cleaner")
+    self.vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
+    rospy.Subscriber('/turtle1/pose', Pose, self.update_pose)
+    ...
+```
+
+- Create a ROS node named "energy_cleaner".
+- Publish velocity commands to /turtle1/cmd_vel.
+- Listen to the turtle's position in /turtle1/pose.
+- Set up services to spawn, delete, and teleport turtles.
+
+Position Update
+
+```python
+def update_pose(self, data):
+    self.pose = data
+```
+
+Updates the turtle's current position as data is received from the /turtle1/pose topic.
+
+Robot Reset
+
+```pyhton
+def reset_robot(self):
+    self.set_pen(0, 0, 0, 0, 1)
+    self.teleport(1.0, 1.0, 0.0)
+    self.set_pen(255, 255, 255, 3, 0)
+```
+    
+- Turn off the pen to avoid drawing lines.
+- Reposition the turtle to (1.0, 1.0).
+- Reactivate the pen to draw.
+
+Generation of "garbage"
+
+```pyhton
+def spawn_trash(self):
+    x = random.uniform(2.0, 10.0)
+    y = random.uniform(2.0, 10.0)
+    self.spawn(x, y, 0, 'trash')
+    return (x, y)
+```
+
+A new turtle called 'trash' appears in a random position in the environment.
+
+Movement towards the goal
+
+```pyhton
+def move_to(self, x_goal, y_goal):
+    ...
+    while not rospy.is_shutdown():
+        ...
+        vel.linear.x = k_linear if abs(angle_error) < 0.1 else 0.0
+        vel.angular.z = k_angular * angle_error
+        ...
+        energy += pow(vel.linear.x, 2) + pow(vel.angular.z, 2)
+```
+        
+- Calculates the distance and angle to the target.
+- Moves only if the angle is small (avoids moving in the wrong direction).
+- Calculates energy as v² + w² at each step (approximation of effort).
+- Upon arrival, stops movement and removes debris.
+
+Main Execution
+
+```python
+def run(self, trials=3):
+    for _ in range(trials):
+        self.reset_robot()
+        x, y = self.spawn_trash()
+        rospy.sleep(1)
+        self.move_to(x, y)
+    ...
+```
+
+- Run multiple trials of the process:
+- Initial repositioning.
+- Garbage generation.
+- Movement toward the target.
+- At the end, print the energy used in each trial and the average.
+
+Main Block
+
+```python
+if __name__ == "__main__":
+    try:
+        robot = EnergyRobot()
+        rospy.sleep(2)
+        robot.run()
+    except rospy.ROSInterruptException:
+        pass
+```
+
+Create the EnergyRobot object, wait for ROS to stabilize, and execute the run method.
 
 ## Performance Metric Evaluation
 
@@ -186,13 +302,7 @@ Future work may include introducing obstacles, dynamic targets, or even reinforc
 
 ## References
 
-1. **Quigley, M. et al. (2009).** *ROS: An Open-Source Robot Operating System.* In: ICRA Workshop on Open Source Software.
-
-2. **Murphy, R. R. (2019).** *Introduction to AI Robotics (2nd Edition).* MIT Press.
-
-3. **Thrun, S., Burgard, W., & Fox, D. (2005).** *Probabilistic Robotics.* MIT Press.
-
-4. **Mataric, M. J. (2007).** *The Robotics Primer.* MIT Press.
-
-5. **United Nations. (2015).** *Transforming Our World: The 2030 Agenda for Sustainable Development.* https://sdgs.un.org/goals
+1. "Pérez, L., & Rodriguez, J. (2020). Autonomous Robots for Environmental Monitoring: A Review. Robotics and Autonomous Systems, 127, 103472.
+2. Wang, Y., & Lin, D. (2021). Simulation Environments for Robotics Education Using ROS and Turtlesim. International Journal of Engineering Education, 37(1), 55–62.
+3. United Nations. (2015). Transforming our World: The 2030 Agenda for Sustainable Development. Retrieved from https://sdgs.un.org/goals
 
