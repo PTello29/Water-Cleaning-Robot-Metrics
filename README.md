@@ -14,7 +14,7 @@ Projects like this highlight the potential of robotics to assist in real-world e
 
 - The robot is implemented using the `turtlesim` package in ROS and programmed in Python.  
 - A single virtual object (waste) is generated at a random position and assigned a fixed color.  
-- The robot scans a 120° field of view to detect the object.  
+- The robot scans the field of view to detect the object.  
 - Upon detection, the robot moves toward the waste and simulates a cleaning operation.  
 - After completion, the robot is reset, and the process can be repeated with a newly generated object.
 
