@@ -46,9 +46,7 @@ Energy $= \int (F \cdot v)dt$
 
 Assuming constant force and approximating based on duration and velocity, energy consumption can be expressed as proportional to:
 
-\[
-E = k \cdot (v^2 + \omega^2) \cdot t
-\]
+$E = k \cdot (v^2 + \omega^2) \cdot t$
 
 Where:
 
