@@ -50,10 +50,10 @@ $E = k \cdot (v^2 + \omega^2) \cdot t$
 
 Where:
 
-- \( v \) = linear velocity  
-- \( \omega \) = angular velocity  
-- \( t \) = total movement time  
-- \( k \) = arbitrary proportional constant  
+- \( $v$ \) = linear velocity  
+- \( $\omega$ \) = angular velocity  
+- \( $t$ \) = total movement time  
+- \( $k$ \) = arbitrary proportional constant  
 
 This allows us to assess how efficiently the robot completes its task.
 
