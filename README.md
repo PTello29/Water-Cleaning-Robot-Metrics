@@ -165,7 +165,7 @@ These libraries allow:
 - Turtlesim-specific services and messages and geometry_msgs
 
 Initialization
-```pyhton
+```python
 def __init__(self):
     rospy.init_node("energy_cleaner")
     self.vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
@@ -189,7 +189,7 @@ Updates the turtle's current position as data is received from the /turtle1/pose
 
 Robot Reset
 
-```pyhton
+```python
 def reset_robot(self):
     self.set_pen(0, 0, 0, 0, 1)
     self.teleport(1.0, 1.0, 0.0)
@@ -202,7 +202,7 @@ def reset_robot(self):
 
 Generation of "garbage"
 
-```pyhton
+```python
 def spawn_trash(self):
     x = random.uniform(2.0, 10.0)
     y = random.uniform(2.0, 10.0)
@@ -214,7 +214,7 @@ A new turtle called 'trash' appears in a random position in the environment.
 
 Movement towards the goal
 
-```pyhton
+```python
 def move_to(self, x_goal, y_goal):
     ...
     while not rospy.is_shutdown():
