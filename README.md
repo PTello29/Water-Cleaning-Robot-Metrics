@@ -36,13 +36,22 @@ The robot uses a proportional control loop to correct its heading based on the a
 
 ### 5. Energy Consumption Metric
 
-To evaluate efficiency, the simulation uses estimated **energy consumption** as its primary metric. It approximates energy usage based on the robot’s linear and angular velocities:
+Rather than speed or timing, this simulation uses **energy consumption** as its primary performance metric. This is computed using the formula:
 
-\[
-E = k \cdot (v^2 + \omega^2) \cdot t
-\]
+Energy $= \int (F \cdot v)dt$
 
-This equation allows us to monitor the trade-offs between motion control and energy efficiency.
+Assuming constant force and approximating based on duration and velocity, energy consumption can be expressed as proportional to:
+
+$E = k \cdot (v^2 + \omega^2) \cdot t$
+
+Where:
+
+- \( $v$ \) = linear velocity  
+- \( $\omega$ \) = angular velocity  
+- \( $t$ \) = total movement time  
+- \( $k$ \) = arbitrary proportional constant  
+
+This allows us to assess how efficiently the robot completes its task.
 
 ## Code Implementation and Explanation
 
