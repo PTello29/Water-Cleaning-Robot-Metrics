@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rospy, time, random
 from math import atan2, sqrt, pow, pi
 from turtlesim.srv import Spawn, Kill, TeleportAbsolute, SetPen
@@ -10,6 +12,13 @@ class EnergyRobot:
         self.vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
         rospy.Subscriber('/turtle1/pose', Pose, self.update_pose)
         self.pose = Pose()
+
+        # Esperar por servicios
+        rospy.wait_for_service('/spawn')
+        rospy.wait_for_service('/kill')
+        rospy.wait_for_service('/turtle1/teleport_absolute')
+        rospy.wait_for_service('/turtle1/set_pen')
+
         self.spawn = rospy.ServiceProxy('/spawn', Spawn)
         self.kill = rospy.ServiceProxy('/kill', Kill)
         self.teleport = rospy.ServiceProxy('/turtle1/teleport_absolute', TeleportAbsolute)
@@ -36,8 +45,12 @@ class EnergyRobot:
         rate = rospy.Rate(10)
         k_linear = 0.5
         k_angular = 3.0
-        start_time = time.perf_counter()
         energy = 0.0
+        dt = 1.0 / 10.0
+
+        # Esperar que pose se actualice
+        while self.pose.x == 0.0 and self.pose.y == 0.0 and not rospy.is_shutdown():
+            rospy.sleep(0.1)
 
         while not rospy.is_shutdown():
             dx = x_goal - self.pose.x
@@ -46,7 +59,7 @@ class EnergyRobot:
 
             angle_to_goal = atan2(dy, dx)
             angle_error = angle_to_goal - self.pose.theta
-            angle_error = (angle_error + pi) % (2 * pi) - pi  # Normalize
+            angle_error = (angle_error + pi) % (2 * pi) - pi  # Normalizar ángulo
 
             if dist < 0.1:
                 break
@@ -55,29 +68,31 @@ class EnergyRobot:
             vel.angular.z = k_angular * angle_error
             self.vel_pub.publish(vel)
 
-            # Approximate energy = v² + w²
-            energy += pow(vel.linear.x, 2) + pow(vel.angular.z, 2)
+            energy += (vel.linear.x ** 2 + vel.angular.z ** 2) * dt
             rate.sleep()
 
         vel.linear.x = 0
         vel.angular.z = 0
         self.vel_pub.publish(vel)
-        end_time = time.perf_counter()
 
-        total_energy = energy * (end_time - start_time) / 10
-        self.energy_used.append(total_energy)
-        self.kill("trash")
+        self.energy_used.append(energy)
+
+        try:
+            self.kill("trash")
+        except rospy.ServiceException as e:
+            rospy.logwarn(f"No se pudo eliminar 'trash': {e}")
 
     def run(self, trials=3):
-        for _ in range(trials):
+        for i in range(trials):
+            rospy.loginfo(f"--- Intento {i+1} ---")
             self.reset_robot()
             x, y = self.spawn_trash()
             rospy.sleep(1)
             self.move_to(x, y)
 
-        print("Energy used per attempt:", [f"{e:.2f}" for e in self.energy_used])
+        rospy.loginfo("Energía usada por intento: " + str([f"{e:.2f}" for e in self.energy_used]))
         avg = sum(self.energy_used) / len(self.energy_used)
-        print(f"Average energy: {avg:.2f}")
+        rospy.loginfo(f"Energía promedio: {avg:.2f}")
 
 if __name__ == "__main__":
     try:
